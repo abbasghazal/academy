@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow">
+    <div class="card-header bg-warning text-white">
+      <h3>المحاضرات القادمة</h3>
+    </div>
+    <div class="card-body">
+      {% if lectures %}
+        <div class="list-group">
+          {% for lecture in lectures %}
+          <div class="list-group-item">
+            <h5>{{ lecture.title }}</h5>
+            <p>المادة: {{ lecture.course.name }}</p>
+            <p>الموعد: {{ lecture.start_time.strftime('%Y-%m-%d %H:%M') }}</p>
+            <p>المدة: {{ (lecture.end_time - lecture.start_time).seconds // 3600 }} ساعة</p>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="alert alert-info">
+          <h4>لا توجد محاضرات قادمة</h4>
+          <p>سيتم إضافة جدول المحاضرات قريباً</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

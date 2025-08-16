@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow">
+    <div class="card-header bg-warning text-white">
+      <h3>لوحة المدرس - {{ current_user.subject.name if current_user.subject else current_user.specialization }}</h3>
+    </div>
+    <div class="card-body">
+      <div class="d-flex align-items-center mb-4">
+        {% if current_user.image %}
+          <img src="static/uploads/{{ current_user.image }}" 
+               class="profile-img me-4" 
+               alt="صورة المدرس">
+        {% else %}
+          <i class="fas fa-user-circle fa-4x text-secondary me-4"></i>
+        {% endif %}
+        <div>
+          <h4>{{ current_user.first_name }} {{ current_user.last_name }}</h4>
+          <p class="mb-0">التخصص: <span class="badge bg-info">{{ current_user.subject.name if current_user.subject else current_user.specialization }}</span></p>
+        </div>
+      </div>
+      
+      <h4 class="mb-4">الصفوف المدرسية</h4>
+      <div class="row">
+        {% for class_level in classes %}
+        <div class="col-md-4 mb-3">
+          <a href="{{ url_for('teacher_class', class_level=class_level) }}" class="card text-center text-decoration-none text-dark">
+            <div class="card-body">
+              <i class="fas fa-users fa-3x text-primary mb-2"></i>
+              <h5>{{ get_class_in_arabic(class_level) }}</h5>
+            </div>
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

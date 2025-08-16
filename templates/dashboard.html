@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-info text-white">
+            <h3>لوحة التحكم</h3>
+        </div>
+        <div class="card-body">
+            <div class="d-flex align-items-center mb-4">
+                {% if current_user.image %}
+                    <img src="static/uploads/{{ current_user.image }}" 
+                         class="profile-img me-4" 
+                         alt="صورة الملف الشخصي">
+                {% else %}
+                    <i class="fas fa-user-circle fa-4x text-secondary me-4"></i>
+                {% endif %}
+                <div>
+                    <h4>مرحباً {{ current_user.first_name }} {{ current_user.last_name }}</h4>
+                    <p class="mb-0">نوع الحساب: 
+                        <span class="badge 
+                            {% if current_user.user_type == 'student' %}bg-success
+                            {% elif current_user.user_type == 'teacher' %}bg-warning
+                            {% elif current_user.user_type == 'tutor' %}bg-secondary
+                            {% else %}bg-danger{% endif %}">
+                            {% if current_user.user_type == 'student' %}طالب
+                            {% elif current_user.user_type == 'teacher' %}مدرس
+                            {% elif current_user.user_type == 'tutor' %}مدرس خصوصي
+                            {% else %}مالك{% endif %}
+                        </span>
+                    </p>
+                </div>
+            </div>
+            
+            {% if current_user.user_type == 'teacher' %}
+                <div class="mt-4">
+                    <h5 class="border-bottom pb-2">معلومات المادة</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card bg-light mb-3">
+                                <div class="card-body">
+                                    <h6 class="card-title text-muted">التخصص</h6>
+                                    <p class="card-text fs-5">{{ current_user.specialization }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light mb-3">
+                                <div class="card-body">
+                                    <h6 class="card-title text-muted">التقييم</h6>
+                                    <p class="card-text">
+                                        <span class="text-warning">
+                                            {% for i in range(5) %}
+                                                {% if i < current_user.rating|round %}
+                                                    <i class="fas fa-star"></i>
+                                                {% else %}
+                                                    <i class="far fa-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </span>
+                                        <br>
+                                        <span class="fs-5">({{ current_user.rating|round(1) }})</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% elif current_user.user_type == 'tutor' %}
+                <div class="mt-4">
+                    <h5 class="border-bottom pb-2">معلومات المدرس الخصوصي</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card bg-light mb-3">
+                                <div class="card-body">
+                                    <h6 class="card-title text-muted">التخصص</h6>
+                                    <p class="card-text fs-5">{{ current_user.specialization }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light mb-3">
+                                <div class="card-body">
+                                    <h6 class="card-title text-muted">السعر بالساعة</h6>
+                                    <p class="card-text fs-5">{{ current_user.hourly_rate }} ريال</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light mb-3">
+                                <div class="card-body">
+                                    <h6 class="card-title text-muted">التقييم</h6>
+                                    <p class="card-text">
+                                        <span class="text-warning">
+                                            {% for i in range(5) %}
+                                                {% if i < current_user.rating|round %}
+                                                    <i class="fas fa-star"></i>
+                                                {% else %}
+                                                    <i class="far fa-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </span>
+                                        <br>
+                                        <span class="fs-5">({{ current_user.rating|round(1) }})</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <div class="quick-actions mt-5">
+                <h5 class="border-bottom pb-2 mb-4">إجراءات سريعة</h5>
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ url_for('student_courses') if current_user.user_type == 'student' else '#' }}" 
+                           class="card text-center text-decoration-none text-dark">
+                            <div class="card-body">
+                                <i class="fas fa-book fa-2x text-primary mb-2"></i>
+                                <h6>المواد</h6>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ url_for('upcoming_lectures') if current_user.user_type == 'student' else '#' }}" 
+                           class="card text-center text-decoration-none text-dark">
+                            <div class="card-body">
+                                <i class="fas fa-calendar-alt fa-2x text-success mb-2"></i>
+                                <h6>الجدول</h6>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ url_for('completed_assignments') if current_user.user_type == 'student' else '#' }}" 
+                           class="card text-center text-decoration-none text-dark">
+                            <div class="card-body">
+                                <i class="fas fa-file-alt fa-2x text-info mb-2"></i>
+                                <h6>الواجبات</h6>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="#" class="card text-center text-decoration-none text-dark">
+                            <div class="card-body">
+                                <i class="fas fa-chart-bar fa-2x text-warning mb-2"></i>
+                                <h6>التقارير</h6>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

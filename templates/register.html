@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">إنشاء حساب جديد</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data" id="registrationForm">
+                    {{ form.hidden_tag() }}
+                    
+                    <!-- رسائل الخطأ العامة -->
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            {% for field, errors in form.errors.items() %}
+                                {% for error in errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3 form-floating">
+                            {{ form.first_name(class="form-control rounded-pill", placeholder=" ", required="required") }}
+                            <label for="first_name">الاسم الأول</label>
+                            {% if form.first_name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.first_name.errors[0] }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text text-end">الاسم الأول كما في الوثائق الرسمية</div>
+                        </div>
+                        <div class="col-md-6 mb-3 form-floating">
+                            {{ form.last_name(class="form-control rounded-pill", placeholder=" ", required="required") }}
+                            <label for="last_name">الاسم الثاني</label>
+                            {% if form.last_name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.last_name.errors[0] }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3 form-floating">
+                        {{ form.email(class="form-control rounded-pill", placeholder=" ", required="required") }}
+                        <label for="email">البريد الإلكتروني</label>
+                        {% if form.email.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.email.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3 form-floating">
+                        {{ form.username(class="form-control rounded-pill", placeholder=" ", required="required") }}
+                        <label for="username">اسم المستخدم</label>
+                        {% if form.username.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.username.errors[0] }}
+                            </div>
+                        {% endif %}
+                        <div class="form-text text-end">يجب أن يكون اسم المستخدم 4 أحرف على الأقل</div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3 form-floating">
+                            {{ form.password(class="form-control rounded-pill", placeholder=" ", required="required") }}
+                            <label for="password">كلمة المرور</label>
+                            {% if form.password.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.password.errors[0] }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text text-end">6 أحرف على الأقل</div>
+                        </div>
+                        <div class="col-md-6 mb-3 form-floating">
+                            {{ form.confirm_password(class="form-control rounded-pill", placeholder=" ", required="required") }}
+                            <label for="confirm_password">تأكيد كلمة المرور</label>
+                            {% if form.confirm_password.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.confirm_password.errors[0] }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3 form-floating">
+                        {{ form.user_type(class="form-select rounded-pill", required="required", id="userTypeSelect") }}
+                        <label for="user_type">نوع الحساب</label>
+                        {% if form.user_type.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.user_type.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- حقول الطالب -->
+                    <div id="studentFields" style="display:none;">
+                        <div class="mb-3 form-floating">
+                            {{ form.student_class(class="form-select rounded-pill") }}
+                            <label for="student_class">الصف الدراسي</label>
+                            {% if form.student_class.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.student_class.errors[0] }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- حقول المدرس -->
+                    <div id="teacherFields" style="display:none;">
+                        <div class="mb-3 form-floating">
+                            {{ form.subject_id(class="form-select rounded-pill") }}
+                            <label for="subject_id">المادة</label>
+                            {% if form.subject_id.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.subject_id.errors[0] }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3 form-floating">
+                            {{ form.teacher_code(class="form-control rounded-pill", placeholder=" ") }}
+                            <label for="teacher_code">كود المادة</label>
+                            {% if form.teacher_code.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.teacher_code.errors[0] }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text text-end">
+                                <a href="https://wa.me/966123456789" target="_blank" class="btn btn-sm btn-success mt-2">
+                                    <i class="fab fa-whatsapp me-1"></i> تواصل معنا للحصول على كود
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- حقول المدرس الخصوصي -->
+                    <div id="tutorFields" style="display:none;">
+                        <div class="mb-3 form-floating">
+                            {{ form.specialization(class="form-control rounded-pill", placeholder=" ") }}
+                            <label for="specialization">التخصص</label>
+                            {% if form.specialization.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.specialization.errors[0] }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3 form-floating">
+                            {{ form.hourly_rate(class="form-control rounded-pill", placeholder=" ", 
+                                              inputmode="decimal", pattern="[0-9]*\.?[0-9]+") }}
+                            <label for="hourly_rate">السعر بالساعة</label>
+                            {% if form.hourly_rate.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.hourly_rate.errors[0] }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text text-end">يجب أن يكون رقمًا موجبًا</div>
+                        </div>
+                    </div>
+                    
+                    <!-- حقل صورة الملف الشخصي -->
+                    <div class="mb-3">
+                        <label for="profile_image" class="form-label">صورة الملف الشخصي (اختياري)</label>
+                        {{ form.profile_image(class="form-control") }}
+                        {% if form.profile_image.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.profile_image.errors[0] }}
+                            </div>
+                        {% endif %}
+                        <div class="form-text text-end">الصيغ المسموحة: JPG, PNG, GIF</div>
+                    </div>
+                    
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" id="terms" required>
+                        <label class="form-check-label" for="terms">
+                            أوافق على <a href="{{ url_for('terms') }}">الشروط والأحكام</a> وسياسة الخصوصية
+                        </label>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success btn-lg rounded-pill" id="submitBtn">إنشاء حساب</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const userTypeSelect = document.getElementById('userTypeSelect');
+    const studentFields = document.getElementById('studentFields');
+    const teacherFields = document.getElementById('teacherFields');
+    const tutorFields = document.getElementById('tutorFields');
+    
+    function toggleFields() {
+        const userType = userTypeSelect.value;
+        
+        studentFields.style.display = 'none';
+        teacherFields.style.display = 'none';
+        tutorFields.style.display = 'none';
+        
+        if (userType === 'student') {
+            studentFields.style.display = 'block';
+            // تعيين الحقول المطلوبة للطالب
+            document.getElementById('student_class').required = true;
+            document.getElementById('subject_id').required = false;
+            document.getElementById('teacher_code').required = false;
+            document.getElementById('specialization').required = false;
+            document.getElementById('hourly_rate').required = false;
+        } else if (userType === 'teacher') {
+            teacherFields.style.display = 'block';
+            // تعيين الحقول المطلوبة للمدرس
+            document.getElementById('student_class').required = false;
+            document.getElementById('subject_id').required = true;
+            document.getElementById('teacher_code').required = true;
+            document.getElementById('specialization').required = false;
+            document.getElementById('hourly_rate').required = false;
+        } else if (userType === 'tutor') {
+            tutorFields.style.display = 'block';
+            // تعيين الحقول المطلوبة للمدرس الخصوصي
+            document.getElementById('student_class').required = false;
+            document.getElementById('subject_id').required = false;
+            document.getElementById('teacher_code').required = false;
+            document.getElementById('specialization').required = true;
+            document.getElementById('hourly_rate').required = true;
+        }
+    }
+    
+    // تغيير الحقول عند تغيير نوع المستخدم
+    userTypeSelect.addEventListener('change', toggleFields);
+    
+    // تنفيذ الوظيفة عند التحميل لعرض الحقول المناسبة
+    toggleFields();
+    
+    // إدارة حالة زر التسجيل
+    const registrationForm = document.getElementById('registrationForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    registrationForm.addEventListener('submit', function() {
+        if (registrationForm.checkValidity()) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                جاري إنشاء الحساب...
+            `;
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-info text-white">
+            <h3>الملف الشخصي للطالب</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 text-center">
+                    {% if student.image %}
+                        <img src="static/uploads/{{ student.image }}" 
+                             class="profile-img mb-3" 
+                             alt="صورة الطالب">
+                    {% else %}
+                        <i class="fas fa-user-circle fa-5x text-secondary mb-3"></i>
+                    {% endif %}
+                    <h4>{{ student.first_name }} {{ student.last_name }}</h4>
+                    <p class="text-muted">طالب</p>
+                </div>
+                <div class="col-md-8">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title text-muted">الصف الدراسي</h6>
+                                    <p class="card-text fs-5">{{ get_class_in_arabic(student.student_class) }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title text-muted">البريد الإلكتروني</h6>
+                                    <p class="card-text fs-5">{{ student.email }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card bg-light mb-3">
+                        <div class="card-header">
+                            <h5>المواد المسجلة</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group">
+                                <li class="list-group-item">اللغة العربية</li>
+                                <li class="list-group-item">الرياضيات</li>
+                                <li class="list-group-item">العلوم</li>
+                                <li class="list-group-item">اللغة الإنجليزية</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow">
+    <div class="card-header bg-info text-white">
+      <h3>المواد المسجلة</h3>
+    </div>
+    <div class="card-body">
+      {% if courses %}
+        <div class="list-group">
+          {% for enrollment in courses %}
+          <div class="list-group-item">
+            <h5>{{ enrollment.course.name }}</h5>
+            <p>كود المادة: {{ enrollment.course.code }}</p>
+            <p>تاريخ التسجيل: {{ enrollment.enrollment_date.strftime('%Y-%m-%d') }}</p>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="alert alert-info">
+          <h4>لا توجد مواد مسجلة بعد</h4>
+          <p>سيتم إضافة المواد الدراسية قريباً من قبل إدارة الأكاديمية</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

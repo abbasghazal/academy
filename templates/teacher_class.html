@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow">
+    <div class="card-header bg-info text-white">
+      <h3>طلاب الصف {{ get_class_in_arabic(class_level) }}</h3>
+    </div>
+    <div class="card-body">
+      <div class="list-group">
+        {% for student in students %}
+        <a href="{{ url_for('student_profile', student_id=student.id) }}" class="list-group-item list-group-item-action">
+          <div class="d-flex align-items-center">
+            {% if student.image %}
+              <img src="static/uploads/{{ student.image }}" 
+                   class="rounded-circle me-3" 
+                   width="50" 
+                   height="50" 
+                   alt="صورة الطالب">
+            {% else %}
+              <i class="fas fa-user-circle fa-2x text-primary me-3"></i>
+            {% endif %}
+            <div>
+              <h5 class="mb-0">{{ student.first_name }} {{ student.last_name }}</h5>
+              <p class="mb-0 text-muted">{{ student.email }}</p>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

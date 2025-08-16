@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- إحصائيات النظام -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white shadow">
+                <div class="card-body">
+                    <h5 class="card-title">الطلاب</h5>
+                    <p class="display-4">{{ total_students }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white shadow">
+                <div class="card-body">
+                    <h5 class="card-title">المدرسون</h5>
+                    <p class="display-4">{{ total_teachers }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-secondary text-white shadow">
+                <div class="card-body">
+                    <h5 class="card-title">المدرسون الخصوصيون</h5>
+                    <p class="display-4">{{ total_tutors }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4 shadow">
+        <div class="card-header bg-danger text-white">
+            <h3>لوحة المالك</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>إضافة مواد دراسية</h4>
+                    <form method="POST">
+                        {{ subject_form.hidden_tag() }}
+                        <div class="mb-3">
+                            {{ subject_form.class_level.label(class="form-label") }}
+                            {{ subject_form.class_level(class="form-select") }}
+                        </div>
+                        <div class="mb-3">
+                            {{ subject_form.subject_name.label(class="form-label") }}
+                            {{ subject_form.subject_name(class="form-control") }}
+                        </div>
+                        <button type="submit" class="btn btn-primary">إضافة المادة</button>
+                    </form>
+                </div>
+                <div class="col-md-6">
+                    <h4>إضافة جداول دراسية</h4>
+                    <form method="POST">
+                        {{ schedule_form.hidden_tag() }}
+                        <div class="mb-3">
+                            {{ schedule_form.class_level.label(class="form-label") }}
+                            {{ schedule_form.class_level(class="form-select") }}
+                        </div>
+                        <div class="mb-3">
+                            {{ schedule_form.day.label(class="form-label") }}
+                            {{ schedule_form.day(class="form-select") }}
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col">
+                                {{ schedule_form.period1.label(class="form-label") }}
+                                {{ schedule_form.period1(class="form-control") }}
+                            </div>
+                            <div class="col">
+                                {{ schedule_form.period2.label(class="form-label") }}
+                                {{ schedule_form.period2(class="form-control") }}
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col">
+                                {{ schedule_form.period3.label(class="form-label") }}
+                                {{ schedule_form.period3(class="form-control") }}
+                            </div>
+                            <div class="col">
+                                {{ schedule_form.period4.label(class="form-label") }}
+                                {{ schedule_form.period4(class="form-control") }}
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                {{ schedule_form.period5.label(class="form-label") }}
+                                {{ schedule_form.period5(class="form-control") }}
+                            </div>
+                            <div class="col">
+                                {{ schedule_form.period6.label(class="form-label") }}
+                                {{ schedule_form.period6(class="form-control") }}
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">حفظ الجدول</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-warning">
+                    <h5>المواد الدراسية</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>الصف</th>
+                                    <th>المادة</th>
+                                    <th>الكود</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for subject in subjects %}
+                                    <tr>
+                                        <td>{{ get_class_in_arabic(subject.class_level) }}</td>
+                                        <td>{{ subject.name }}</td>
+                                        <td>{{ subject.code }}</td>
+                                        <td>
+                                            <form method="POST" action="{{ url_for('delete_subject', subject_id=subject.id) }}">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <button type="submit" class="btn btn-danger btn-sm me-2">حذف</button>
+                                                <button type="button" class="btn btn-success btn-sm" 
+                                                    onclick="generateCode({{ subject.id }})">إنشاء كود</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-warning">
+                    <h5>قائمة المدرسين</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="teachers-tab" data-bs-toggle="tab" data-bs-target="#teachers" type="button" role="tab">مدرسون المعهد</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="tutors-tab" data-bs-toggle="tab" data-bs-target="#tutors" type="button" role="tab">مدرسون خصوصيون</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="myTabContent">
+                        <div class="tab-pane fade show active" id="teachers" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>الاسم</th>
+                                            <th>التخصص</th>
+                                            <th>المادة</th>
+                                            <th>الإجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for teacher in teachers %}
+                                            <tr>
+                                                <td>{{ teacher.first_name }} {{ teacher.last_name }}</td>
+                                                <td>{{ teacher.specialization }}</td>
+                                                <td>{{ teacher.subject.name if teacher.subject else 'غير معين' }}</td>
+                                                <td>
+                                                    <form method="POST" action="{{ url_for('delete_teacher', teacher_id=teacher.id) }}">
+                                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                        <button type="submit" class="btn btn-danger btn-sm">حذف</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="tutors" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>الاسم</th>
+                                            <th>التخصص</th>
+                                            <th>التقييم</th>
+                                            <th>الإجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for tutor in tutors %}
+                                            <tr>
+                                                <td>{{ tutor.first_name }} {{ tutor.last_name }}</td>
+                                                <td>{{ tutor.specialization }}</td>
+                                                <td>
+                                                    <span class="text-warning">
+                                                        {% for i in range(5) %}
+                                                            {% if i < tutor.rating|round %}
+                                                                <i class="fas fa-star"></i>
+                                                            {% else %}
+                                                                <i class="far fa-star"></i>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                        ({{ tutor.rating|round(1) }})
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <form method="POST" action="{{ url_for('delete_teacher', teacher_id=tutor.id) }}">
+                                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                        <button type="submit" class="btn btn-danger btn-sm">حذف</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-info">
+                    <h5>أكواد المدرسين</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>الكود</th>
+                                    <th>المادة</th>
+                                    <th>الحالة</th>
+                                    <th>تاريخ الإنشاء</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for code in teacher_codes %}
+                                    <tr>
+                                        <td>{{ code.code }}</td>
+                                        <td>{{ code.subject.name }}</td>
+                                        <td>
+                                            {% if code.used %}
+                                                <span class="badge bg-danger">مستعمل</span>
+                                            {% else %}
+                                                <span class="badge bg-success">متاح</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ code.created_at.strftime('%Y-%m-%d') }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function generateCode(subjectId) {
+        // إرسال طلب AJAX لإنشاء كود جديد
+        fetch(`/generate_teacher_code/${subjectId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(`تم إنشاء كود جديد: ${data.code}`);
+                location.reload();
+            } else {
+                alert('حدث خطأ أثناء إنشاء الكود');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('حدث خطأ أثناء إنشاء الكود');
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-section">
+  <div class="container text-center py-5">
+    <h1 class="display-3 fw-bold animate__animated animate__fadeInDown">مرحباً بكم في أكاديمية الرواد</h1>
+    <p class="lead fs-4 mt-3 animate__animated animate__fadeIn animate__delay-1s">منصة التعليم الرائدة لتطوير مهارات المستقبل</p>
+    
+    <div class="features mt-5 animate__animated animate__fadeInUp animate__delay-2s">
+      <div class="row">
+        <div class="col-md-4 mb-4">
+          <div class="card h-100 shadow">
+            <div class="card-body">
+              <i class="fas fa-graduation-cap fa-3x text-primary mb-3"></i>
+              <h5 class="card-title">تعليم متميز</h5>
+              <p class="card-text">مناهج تعليمية حديثة تواكب متطلبات العصر</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-4">
+          <div class="card h-100 shadow">
+            <div class="card-body">
+              <i class="fas fa-chalkboard-teacher fa-3x text-success mb-3"></i>
+              <h5 class="card-title">مدرسون متخصصون</h5>
+              <p class="card-text">أفضل الكفاءات التعليمية في مختلف التخصصات</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-4">
+          <div class="card h-100 shadow">
+            <div class="card-body">
+              <i class="fas fa-laptop-code fa-3x text-info mb-3"></i>
+              <h5 class="card-title">منصة تفاعلية</h5>
+              <p class="card-text">أدوات تعليمية تفاعلية ومتابعة دقيقة</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="testimonials mt-5 bg-light p-5 rounded-3 animate__animated animate__fadeIn animate__delay-3s">
+        <h3 class="mb-4">آراء طلابنا</h3>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="https://via.placeholder.com/50" class="rounded-circle me-3" alt="طالب">
+                            <div>
+                                <h5 class="mb-0">أحمد محمد</h5>
+                                <small class="text-muted">طالب هندسة</small>
+                            </div>
+                        </div>
+                        <p class="card-text">الأكاديمية غيرت مساري التعليمي بالكامل، شكراً لكم على الدعم المستمر</p>
+                        <div class="text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="https://via.placeholder.com/50" class="rounded-circle me-3" alt="طالب">
+                            <div>
+                                <h5 class="mb-0">سارة عبدالله</h5>
+                                <small class="text-muted">طالبة طب</small>
+                            </div>
+                        </div>
+                        <p class="card-text">المدرسون مميزون والمنصة سهلة الاستخدام، أنصح الجميع بالتسجيل</p>
+                        <div class="text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="https://via.placeholder.com/50" class="rounded-circle me-3" alt="طالب">
+                            <div>
+                                <h5 class="mb-0">خالد سعيد</h5>
+                                <small class="text-muted">طالب علوم حاسب</small>
+                            </div>
+                        </div>
+                        <p class="card-text">المواد العلمية ممتازة والشرح واضح، زادت درجاتي بشكل ملحوظ</p>
+                        <div class="text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-5 animate__animated animate__fadeIn animate__delay-4s">
+      <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg mx-2">تسجيل الدخول</a>
+      <a href="{{ url_for('register') }}" class="btn btn-success btn-lg mx-2">إنشاء حساب جديد</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

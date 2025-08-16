@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow">
+    <div class="card-header bg-success text-white">
+      <h3>الواجبات المكتملة</h3>
+    </div>
+    <div class="card-body">
+      {% if assignments %}
+        <div class="list-group">
+          {% for submission in assignments %}
+          <div class="list-group-item">
+            <h5>{{ submission.assignment.title }}</h5>
+            <p>المادة: {{ submission.assignment.course.name }}</p>
+            <p>تاريخ التسليم: {{ submission.submission_date.strftime('%Y-%m-%d') }}</p>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="alert alert-info">
+          <h4>لا توجد واجبات مكتملة بعد</h4>
+          <p>سيتم إضافة الواجبات قريباً من قبل المدرسين</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

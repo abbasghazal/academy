@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow">
+    <div class="card-header bg-primary text-white">
+      <h3>لوحة الطالب - الصف {{ get_class_in_arabic(current_user.student_class) }}</h3>
+    </div>
+    <div class="card-body">
+      <div class="d-flex align-items-center mb-4">
+        {% if current_user.image %}
+          <img src="static/uploads/{{ current_user.image }}" 
+               class="profile-img me-4" 
+               alt="صورة الطالب">
+        {% else %}
+          <i class="fas fa-user-circle fa-4x text-secondary me-4"></i>
+        {% endif %}
+        <div>
+          <h4>{{ current_user.first_name }} {{ current_user.last_name }}</h4>
+          <p class="mb-0">الصف الدراسي: <span class="badge bg-info">{{ get_class_in_arabic(current_user.student_class) }}</span></p>
+        </div>
+      </div>
+      
+      <div class="student-stats mb-5">
+        <div class="row">
+          <div class="col-md-3 mb-3">
+            <a href="{{ url_for('student_courses') }}" class="card bg-info text-white text-decoration-none">
+              <div class="card-body text-center">
+                <h6>المواد المسجلة</h6>
+                <p class="display-4">{{ enrolled_courses }}</p>
+              </div>
+            </a>
+          </div>
+          <div class="col-md-3 mb-3">
+            <a href="{{ url_for('completed_assignments') }}" class="card bg-success text-white text-decoration-none">
+              <div class="card-body text-center">
+                <h6>الواجبات المكتملة</h6>
+                <p class="display-4">{{ completed_assignments }}</p>
+              </div>
+            </a>
+          </div>
+          <div class="col-md-3 mb-3">
+            <a href="{{ url_for('upcoming_lectures') }}" class="card bg-warning text-white text-decoration-none">
+              <div class="card-body text-center">
+                <h6>المحاضرات القادمة</h6>
+                <p class="display-4">{{ upcoming_lectures }}</p>
+              </div>
+            </a>
+          </div>
+          <div class="col-md-3">
+            <div class="card bg-secondary text-white">
+              <div class="card-body text-center">
+                <h6>المعدل التراكمي</h6>
+                <p class="display-4">0</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card shadow">
+            <div class="card-header bg-info text-white">
+              <h5>مدرسون المعهد</h5>
+            </div>
+            <div class="card-body">
+              <div class="list-group">
+                {% for teacher in institute_teachers %}
+                <a href="{{ url_for('teacher_profile', teacher_id=teacher.id) }}" class="list-group-item list-group-item-action">
+                  <div class="d-flex w-100 justify-content-between">
+                    <div class="d-flex align-items-center">
+                      {% if teacher.image %}
+                        <img src="static/uploads/{{ teacher.image }}" 
+                             class="rounded-circle me-3" 
+                             width="50" 
+                             height="50" 
+                             alt="صورة المدرس">
+                      {% else %}
+                        <i class="fas fa-user-tie fa-2x text-primary me-3"></i>
+                      {% endif %}
+                      <div>
+                        <h5 class="mb-1">{{ teacher.first_name }} {{ teacher.last_name }}</h5>
+                        <p class="mb-0 text-muted">{{ teacher.subject.name if teacher.subject else teacher.specialization }}</p>
+                      </div>
+                    </div>
+                    <small class="text-muted">مدرس معهد</small>
+                  </div>
+                </a>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="card shadow">
+            <div class="card-header bg-warning text-white">
+              <h5>مدرسون خصوصيون</h5>
+            </div>
+            <div class="card-body">
+              <div class="list-group">
+                {% for tutor in private_tutors %}
+                <a href="{{ url_for('teacher_profile', teacher_id=tutor.id) }}" class="list-group-item list-group-item-action">
+                  <div class="d-flex w-100 justify-content-between">
+                    <div class="d-flex align-items-center">
+                      {% if tutor.image %}
+                        <img src="static/uploads/{{ tutor.image }}" 
+                             class="rounded-circle me-3" 
+                             width="50" 
+                             height="50" 
+                             alt="صورة المدرس">
+                      {% else %}
+                        <i class="fas fa-chalkboard-teacher fa-2x text-warning me-3"></i>
+                      {% endif %}
+                      <div>
+                        <h5 class="mb-1">{{ tutor.first_name }} {{ tutor.last_name }}</h5>
+                        <p class="mb-0 text-muted">{{ tutor.specialization }}</p>
+                      </div>
+                    </div>
+                    <small class="text-muted">مدرس خصوصي</small>
+                  </div>
+                  <div class="mt-2">
+                    <p class="mb-1">السعر بالساعة: <span class="fw-bold">{{ tutor.hourly_rate }} ريال</span></p>
+                    <p class="mb-1">التقييم: 
+                      <span class="text-warning">
+                        {% for i in range(5) %}
+                          {% if i < tutor.rating|round %}
+                            <i class="fas fa-star"></i>
+                          {% else %}
+                            <i class="far fa-star"></i>
+                          {% endif %}
+                        {% endfor %}
+                      </span>
+                      <span class="ms-2">({{ tutor.rating|round(1) }})</span>
+                    </p>
+                  </div>
+                </a>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
