@@ -4,4 +4,4 @@ flask-login
 flask-wtf
 email-validator
 werkzeug
-gunicorn==
+gunicorn
