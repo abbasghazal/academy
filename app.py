@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -5,29 +6,42 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from forms import LoginForm, RegistrationForm, SubjectForm, ScheduleForm, ForgotPasswordForm, ResetPasswordForm
 from werkzeug.utils import secure_filename
 import secrets
-import os
+import psycopg2
+import redis
 from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import relationship
 import smtplib
 from email.mime.text import MIMEText
 from flask_wtf.csrf import CSRFProtect
+from dotenv import load_dotenv
+
+load_dotenv()  # تحميل المتغيرات البيئية من ملف .env
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key'
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', '').replace('postgres://', 'postgresql://')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your_secret_key')
+
+# إعدادات قاعدة البيانات لـ Render
+db_url = os.environ.get('DATABASE_URL')
+if db_url and db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+else:
+    db_url = 'sqlite:///academy.db'
+
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 csrf = CSRFProtect(app)
 
 # إعدادات البريد الإلكتروني
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'your_email@gmail.com'
-app.config['MAIL_PASSWORD'] = 'your_email_password'
-app.config['MAIL_DEFAULT_SENDER'] = 'your_email@gmail.com'
+app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
+app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
+app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', 'True') == 'True'
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER')
 
+# إنشاء مجلد التحميل إذا لم يكن موجوداً
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 
@@ -56,6 +70,7 @@ def get_class_in_arabic(class_name):
 def utility_processor():
     return dict(get_class_in_arabic=get_class_in_arabic)
 
+# نماذج قاعدة البيانات
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(50), nullable=False)
@@ -73,6 +88,7 @@ class User(UserMixin, db.Model):
     image = db.Column(db.String(100))
     subject_id = db.Column(db.Integer, db.ForeignKey('subject.id'))
     subject = db.relationship('Subject', backref=db.backref('teachers', lazy=True))
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -85,6 +101,7 @@ class Subject(db.Model):
     class_level = db.Column(db.String(50), nullable=False)
     name = db.Column(db.String(100), nullable=False)
     code = db.Column(db.String(20), unique=True, nullable=False, default='')
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
 class TeacherCode(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -112,11 +129,13 @@ class Schedule(db.Model):
     period4 = db.Column(db.String(100))
     period5 = db.Column(db.String(100))
     period6 = db.Column(db.String(100))
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
 class Course(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     class_level = db.Column(db.String(50), nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
 class Enrollment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -153,12 +172,14 @@ class Rating(db.Model):
     teacher_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     student_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     rating = db.Column(db.Float, nullable=False)
+    comment = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(User, int(user_id))
 
+# المسارات
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -199,7 +220,7 @@ def forgot_password():
             db.session.add(reset_token)
             db.session.commit()
             
-            # إرسال البريد الإلكتروني (في بيئة حقيقية)
+            # إرسال البريد الإلكتروني
             try:
                 msg = MIMEText(f'رمز استعادة كلمة المرور الخاص بك هو: {token}')
                 msg['Subject'] = 'استعادة كلمة المرور - أكاديمية الرواد'
@@ -483,8 +504,8 @@ def student_dashboard():
         Lecture.start_time < datetime.now(timezone.utc) + timedelta(days=7)
     ).count()
     
-    institute_teachers = User.query.filter_by(user_type='teacher').all()
-    private_tutors = User.query.filter_by(user_type='tutor').all()
+    institute_teachers = User.query.filter_by(user_type='teacher').limit(5).all()
+    private_tutors = User.query.filter_by(user_type='tutor').limit(5).all()
     
     return render_template('student_dashboard.html',
                          enrolled_courses=enrolled_courses,
@@ -540,8 +561,10 @@ def teacher_profile(teacher_id):
         flash('المدرس غير موجود', 'danger')
         return redirect(url_for('student_dashboard'))
     
-    # Check if student has already rated this teacher
+    # التحقق مما إذا كان الطالب قد قام بتقييم هذا المدرس بالفعل
     already_rated = False
+    existing_rating = None
+    
     if current_user.is_authenticated and current_user.user_type == 'student':
         existing_rating = Rating.query.filter_by(
             teacher_id=teacher_id,
@@ -549,24 +572,29 @@ def teacher_profile(teacher_id):
         ).first()
         already_rated = existing_rating is not None
     
+    ratings = Rating.query.filter_by(teacher_id=teacher_id).all()
+    
     if request.method == 'POST' and not already_rated:
         rating_value = request.form.get('rating')
+        comment = request.form.get('comment', '')
+        
         if rating_value and rating_value.isdigit():
             rating_value = int(rating_value)
             if 1 <= rating_value <= 5:
                 new_rating = Rating(
                     teacher_id=teacher_id,
                     student_id=current_user.id,
-                    rating=rating_value
+                    rating=rating_value,
+                    comment=comment
                 )
                 db.session.add(new_rating)
                 
-                # Update teacher's rating average
+                # تحديث متوسط تقييم المدرس
                 ratings = Rating.query.filter_by(teacher_id=teacher_id).all()
-                total = sum(r.rating for r in ratings) + rating_value
-                count = len(ratings) + 1
-                teacher.rating = total / count
-                teacher.rating_count = count
+                total_ratings = sum(r.rating for r in ratings) + rating_value
+                count_ratings = len(ratings) + 1
+                teacher.rating = total_ratings / count_ratings
+                teacher.rating_count = count_ratings
                 
                 db.session.commit()
                 flash('شكراً لتقييمك!', 'success')
@@ -574,7 +602,8 @@ def teacher_profile(teacher_id):
     
     return render_template('teacher_profile.html', 
                           teacher=teacher, 
-                          already_rated=already_rated)
+                          already_rated=already_rated,
+                          ratings=ratings)
 
 @app.route('/student_courses')
 @login_required
@@ -626,12 +655,13 @@ if __name__ == '__main__':
             owner = User(
                 first_name='Owner',
                 last_name='Account',
-                email='owner@academy.com',
+                email=os.environ.get('OWNER_EMAIL', 'owner@academy.com'),
                 username='owner',
                 user_type='owner'
             )
-            owner.set_password('owner_password')
+            owner.set_password(os.environ.get('OWNER_PASSWORD', 'owner_password'))
             db.session.add(owner)
             db.session.commit()
             
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=os.environ.get('DEBUG', 'False') == 'True')
