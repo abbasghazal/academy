@@ -67,8 +67,8 @@ class RegistrationForm(FlaskForm):
             if not self.specialization.data:
                 self.specialization.errors.append('يرجى إدخال التخصص')
                 return False
-            if not self.hourly_rate.data and self.hourly_rate.data != 0:
-                self.hourly_rate.errors.append('يرجى إدخال السعر بالساعة')
+            if self.hourly_rate.data is None or self.hourly_rate.data < 0:
+                self.hourly_rate.errors.append('يرجى إدخال سعر بالساعة صحيح')
                 return False
 
         return True
@@ -114,10 +114,6 @@ class ScheduleForm(FlaskForm):
     period5 = StringField('الحصة الخامسة')
     period6 = StringField('الحصة السادسة')
     submit = SubmitField('حفظ الجدول')
-
-class TeacherCodeForm(FlaskForm):
-    subject_id = SelectField('المادة', coerce=int, choices=[], validators=[DataRequired()])
-    submit = SubmitField('إنشاء كود')
 
 class ForgotPasswordForm(FlaskForm):
     email = StringField('البريد الإلكتروني', validators=[DataRequired(), Email()])
