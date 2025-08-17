@@ -4,5 +4,7 @@ flask-login
 flask-wtf
 email-validator
 werkzeug
-psycopg2-binary  
-gunicorn         
+psycopg2-binary
+gunicorn
+python-dotenv
+redis
